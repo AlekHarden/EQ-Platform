@@ -44,7 +44,7 @@ To accomplish these goals the current WIP Plan is:
 Extra features I would like to implement:
 - Bahtinov Mask Diffraction Spike Analyzer / Manual Focusing Assist.
 
-# Important links which helped me:
+## Important links which helped me:
 
 Programming the Ender3 Mainboard:
 https://youtu.be/FJ9al1n0-pY?si=JfbQ9YBzFDdZIu13
