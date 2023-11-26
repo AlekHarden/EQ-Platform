@@ -1,3 +1,22 @@
+===================================== EQ Platform Custom Mapping ===================================================
+   
+ *                 -------                        
+ *        PCB_LED | 27 16 | debugSwitch                                              
+      limitSwitch | 11  - | RESET                 
+ *       inputbtn   10 30 | beeper             
+ *    voltageSens | 28 17 | led
+ *            GND | -   - | 5V             
+ *                 -------    
+ */
+
+
+
+===================================== Ender 3 Pin Config ===================================================
+
+  https://github.com/MarlinFirmware/Marlin/blob/2.0.x/Marlin/src/pins/sanguino/pins_MELZI_CREALITY.h
+
+
+
 /**
   PIN:   0   Port: B0        E0_DIR_PIN                  protected
   PIN:   1   Port: B1        E0_STEP_PIN                 protected
@@ -57,14 +76,3 @@
  *        ------                                      ------
 
 
-========================================================================================
-
- *    EQ Platform Custom Mapping         
- *                 -------                        
- *        PCB_LED | 27 16 | debugSwitch                                              
-      limitSwitch | 11  - | RESET                 
- *       inputbtn   10 30 | beeper             
- *    voltageSens | 28 17 | led
- *            GND | -   - | 5V             
- *                 -------    
- */
