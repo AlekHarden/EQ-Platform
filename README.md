@@ -1,4 +1,4 @@
-﻿## EQ-Platform
+﻿# EQ-Platform
 Equatorial Platform
 
 The purpose of this project is to build an equatorial platform to set any telescope and/or camera on top and actively track the motion of the night sky.
@@ -16,7 +16,7 @@ To my surprise, the Ender3 mainboard is based on Arduino and uses an ATMEGA1284P
 The open-source community has generously created a bootloader for this chip, which allows users to create programs in C using the Arduino IDE. 
 Third party stepper libraries work too!
 
-# Current Capability
+## Current Capability
 
 Since the project uses a stepper motor and lead screw as the main actuator for rotating the platform, there is some funky math required to map a linear motion to an angular one.
 To obtain this mapping, I simulated the movement within cad software and created a discrete table of linear distance vs angular position data points.
@@ -27,7 +27,7 @@ However, this simulated + manual scaling approach has resulted in sub-par tracki
 
 For astrophotography, ideally exposures of around 1 or 2 minutes with pixel perfect tracking are required.
 
-# WIP Plans
+## WIP Plans
 
 To improve the tracking, I plan on calibrating the actuation curve with real world data by creating a tracking feedback loop, in which a camera (Or "Guide Scope" as known by astrophotographers) detects star movement and adjusts the speed of the stepper motor on the fly to counter the movement. 
 Over the course of the full actuation, I plan to save the adjustments to a new curve which will be the new default for the next session. 
