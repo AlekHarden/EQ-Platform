@@ -49,14 +49,14 @@ Extra features I would like to implement:
 Programming the Ender3 Mainboard:
 https://youtu.be/FJ9al1n0-pY?si=JfbQ9YBzFDdZIu13
 
-Installing a Bootloader 
+Installing a Bootloader:
 https://www.youtube.com/watch?v=fIl5X2ffdyo
 
-ATMEGA 1248P Documentation  
+ATMEGA 1248P Documentation:
 http://ww1.microchip.com/downloads/en/DeviceDoc/ATmega164A_PA-324A_PA-644A_PA-1284_P_Data-Sheet-40002070B.pdf
 
-Melzi Pin Assignments
+Melzi Pin Assignments:
 https://github.com/MarlinFirmware/Marlin/blob/2.0.x/Marlin/src/pins/sanguino/pins_MELZI_CREALITY.h
 
-FlexyStepper Library Documentation  
+FlexyStepper Library Documentation:
 https://github.com/Stan-Reifel/FlexyStepper/blob/master/Documentation.pdf
