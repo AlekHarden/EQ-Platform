@@ -3,19 +3,6 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"label": "Clean",
-			"options": {
-				"cwd": "${workspaceFolder}\\Tracking"
-			},
-			"command": "rm"
-
-
-		},
-
-
-
-		{
-			"type": "shell",
 			"label": "Compile",
 			"options": {
 				"cwd": "${workspaceFolder}\\Tracking"

@@ -1,4 +1,3 @@
 Tracking/bin/*
-.vscode/c_cpp_properties.json
-
+!Tracking/bin/.gitkeep
 
