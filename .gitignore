@@ -1,2 +1,4 @@
-Tracking/bin/*.exe
+Tracking/bin/*
 .vscode/c_cpp_properties.json
+
+

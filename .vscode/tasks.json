@@ -3,10 +3,35 @@
 	"tasks": [
 		{
 			"type": "shell",
+			"label": "Clean",
+			"options": {
+				"cwd": "${workspaceFolder}\\Tracking"
+			},
+			"command": "rm"
+
+
+		},
+
+
+
+		{
+			"type": "shell",
 			"label": "Compile",
 			"options": {
 				"cwd": "${workspaceFolder}\\Tracking"
 			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"showReuseMessage": true,
+				"clear": true
+			},
+
+			"dependsOn" :[
+				"clean"
+			],
+			"dependsOrder": "sequence",
+		
 			"command": "g++",
 			"args": [
 				"src\\*.cpp",
@@ -14,6 +39,8 @@
 				"bin\\${config:project.executable.title}.exe",
 				"-I",
 				"include\\",
+
+				"-g",
 
 				"-Wall",
 
@@ -86,6 +113,20 @@
 				"cwd": "${workspaceFolder}\\Tracking"
 			},
 			"command": "bin\\${config:project.executable.title}.exe",
+			"group":"test",
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true,
+			}
+		},
+		{
+			"type": "shell",
+			"label": "Debug",
+			"options": {
+				"cwd": "${workspaceFolder}\\Tracking"
+			},
+			"command": "gdb bin\\${config:project.executable.title}.exe",
 			"group":"test",
 		}
 	]
