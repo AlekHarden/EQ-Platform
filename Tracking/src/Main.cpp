@@ -25,6 +25,8 @@ Author: Alek Harden
 void subtractMean(const cv::Mat & input, cv::Mat & dst);
 void applySignedOffsetDark(const cv::Mat & input, const cv::Mat & signedOffsetDark, cv::Mat & dst);
 void signedGrayscale16ToRedBlue8(const cv::Mat & signedGrayscale, cv::Mat & rgbOut);
+void stack(std::vector<cv::Mat> imageArray, cv::Mat & dst);
+
 
 enum CalibrationFrameType {
 	CAL_DARK,
@@ -84,7 +86,6 @@ int main(){
 	cv::moveWindow(videoWindow, 600,200);
 
 
-	//TODO: Create Calibration Class
 	//Generate Signed Offset Dark Frame 
 	cv::Mat MasterDark = cv::imread("res\\calibration\\bias\\MasterBias.tif",cv::IMREAD_GRAYSCALE);
 	cv::Mat MasterDarkSigned; 
@@ -92,6 +93,20 @@ int main(){
 	MasterDark.convertTo(MasterDarkSigned,CV_16SC1);
 	subtractMean(MasterDarkSigned,OffsetDarkSigned);
 	bool applyDarkFrameCalib = false;
+
+
+	std::vector<cv::Mat> stackFrames;
+	unsigned int numDarkFrames = 4000;
+	unsigned int recordedFrames = 0;
+	bool recDarkFrame = false;
+
+
+
+
+
+
+
+
 
 	//Class for handling video recording and indexing
 	VideoFileManager videoFileManager("bin\\videos");
@@ -110,6 +125,21 @@ int main(){
 			break;
 		}
 
+
+		if (recDarkFrame){
+
+			if (recordedFrames < numDarkFrames){
+				stackFrames.push_back(frame.clone());
+				recordedFrames++;
+				std::cout << recordedFrames << std::endl;
+
+			}
+			else{
+				recDarkFrame = false;
+				std::cout << "Done recording " << recordedFrames << " dark frames." << std::endl;
+			}
+
+		}
 
 		/*
 		std::vector<cv::Point> features;
@@ -142,20 +172,20 @@ int main(){
 		//Process GUI and get keypress
 		int k = cv::waitKey(1);
 		switch(k){
-			case 27: //Exit on ESC press (char 27)
+			case 27: { //Exit on ESC press (char 27)
 				running = false; 
 				break;
-
-			case 'd': 
+			}
+			case 'd': {
 				applyDarkFrameCalib = !applyDarkFrameCalib;
 				std::cout << "Dark Frame Calibration " << (applyDarkFrameCalib ? "On" : "Off") << std::endl;
 				break;
-
-			case 'p': //open properties window
+			}
+			case 'p': { //open properties window
 				cam.set(cv::CAP_PROP_SETTINGS,true);
 				break;
-
-			case 'r':
+			}
+			case 'r': {
 				if (videoFileManager.isOpened()) {
 					std::cout << "Recorded " << videoFileManager.getNumRecordedFrames() << " frames as " << videoFileManager.getFileName() << std::endl;
 					videoFileManager.close();
@@ -165,7 +195,61 @@ int main(){
 					std::cout << (openSuccess ? "Recording..." : "Failed to start recording.") << std::endl;
 				}
 				break;
+			}
+			case 'c': {
+				recDarkFrame = !recDarkFrame;
+				break;
+			}
+			case 'v': {
 
+				if (!stackFrames.empty()){
+					cv::Mat image = stackFrames.back();
+					stackFrames.pop_back();
+					recordedFrames--;
+
+					if(image.empty()){
+						break;
+					}
+					cv::imshow("Pop",image);
+					std::cout << recordedFrames << std::endl;
+				}
+				else{
+					stackFrames.shrink_to_fit();
+					cv::destroyWindow("Stack");
+					std::cout << "No more images" << std::endl;
+				}
+				
+				break;
+
+
+			}
+			case 'x' : {
+				
+				cv::Mat completedStack;
+				stack(stackFrames,completedStack);
+				stackFrames.clear();
+				recordedFrames = 0;
+				std::cout << recordedFrames << std::endl;
+				
+
+				if (completedStack.empty()){
+					std::cout << "Nothing to stack" << std::endl;
+					break;
+				}
+	
+
+				cv::Mat stackDisplay;
+				completedStack.convertTo(stackDisplay,CV_8UC1);
+				cv::imshow("Stack",stackDisplay);
+
+
+				//Set the new dark frame
+				cv::Mat newDarkDSigned;
+				completedStack.convertTo(newDarkDSigned,CV_16SC1);
+				subtractMean(newDarkDSigned,OffsetDarkSigned);
+
+				break;
+			}
 			default:
 				break;
 		}
@@ -244,4 +328,27 @@ void signedGrayscale16ToRedBlue8(const cv::Mat & signedGrayscale, cv::Mat & rgbO
 	cv::merge(channels,3,rgbOut);
 }
 
+
+
+
+void stack(std::vector<cv::Mat> imageArray, cv::Mat & dst){
+
+	if (imageArray.empty()){
+		return;
+	}
+
+	dst = cv::Mat(imageArray.back().size(),CV_64FC1);
+
+	for (cv::Mat &image : imageArray) { //Access by refrence to avoid copying
+		cv::Mat image64f;
+		image.convertTo(image64f,CV_64FC1);
+
+		cv::add(dst,image64f,dst);
+	}
+
+	dst = dst/(double)imageArray.size();
+
+
+
+}
 
