@@ -13,11 +13,15 @@ Ideally, the stepper profile should only need to be calibrated once, then saved 
 
 ## Keyboard Controls:
 ### General:
-- `ESC` - close program
-- `P` - reopen camera properties window (if it's closed).
-- `R` - start/stop recording
-### Calibration:
+- `ESC` - Close program
+- `P` - Reopen camera properties window (if it's closed).
+- `R` - Start/Stop recording
+### Image Calibration:
+#### Dark Frame
 - `D` - Toggle Dark Frame Calibration (Default: Off)
+- `C` - Start/Stop dark frame acquisition.
+- `X` - Stack aquired dark frames, and apply stack as new master dark.
+- `Z` - Show master dark offset (Signed 16 bit) as 8 bit two channel image (Green + , Red -)
 
 
 

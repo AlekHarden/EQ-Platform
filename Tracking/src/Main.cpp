@@ -12,6 +12,7 @@ Author: Alek Harden
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/video/tracking.hpp>
 
 //Standard includes
 #include <iostream>
@@ -72,7 +73,7 @@ int main(){
 	//Settings
 	cam.set(cv::CAP_PROP_GAIN,2047);     //  34 --- 2047
 	cam.set(cv::CAP_PROP_EXPOSURE,-13);  // -13 --- 4        //Exposure Time is Roughly equal to 2^(Exposure value)
-	cam.set(cv::CAP_PROP_BRIGHTNESS,70); //   0 --- 255      
+	cam.set(cv::CAP_PROP_BRIGHTNESS,20); //   0 --- 255      
 
 
 	//SHOW SETTINGS WINDOW!!!
@@ -96,22 +97,15 @@ int main(){
 
 
 	std::vector<cv::Mat> stackFrames;
-	unsigned int numDarkFrames = 4000;
 	unsigned int recordedFrames = 0;
 	bool recDarkFrame = false;
-
-
-
-
-
-
-
 
 
 	//Class for handling video recording and indexing
 	VideoFileManager videoFileManager("bin\\videos");
 
 	cv::Mat frame;
+	cv::Mat prevframe; // for finding optical flow
 
 	bool running = true;
 	while(running){
@@ -126,44 +120,27 @@ int main(){
 		}
 
 
+		//Record dark frame calibration before any processing.
 		if (recDarkFrame){
-
-			if (recordedFrames < numDarkFrames){
-				stackFrames.push_back(frame.clone());
-				recordedFrames++;
-				std::cout << recordedFrames << std::endl;
-
-			}
-			else{
-				recDarkFrame = false;
-				std::cout << "Done recording " << recordedFrames << " dark frames." << std::endl;
-			}
-
+			stackFrames.push_back(frame.clone());
+			recordedFrames++;
+			std::cout << recordedFrames << std::endl;
 		}
 
-		/*
-		std::vector<cv::Point> features;
-		cv::goodFeaturesToTrack(frame,features,1000,0.01,0);
 
-		for(size_t i = 0; i < features.size(); i++){
-			cv::circle(frame,features[i],1,cv::Scalar(0,255,255));
-		}
-		*/
-
-		//Effects Pipeline
+		
 
 		if (applyDarkFrameCalib){
 			cv::Mat calibratedFrame;
 			applySignedOffsetDark(frame,OffsetDarkSigned,calibratedFrame);
 			frame = calibratedFrame;
-
 		}
-		
 
 		//Display frame
 		cv::imshow(videoWindow,frame);
 
-		//Record to video if opened
+
+		//Record processed Image to video if opened.
 		if (videoFileManager.isOpened()){
 			videoFileManager.write(frame);
 		}
@@ -200,55 +177,35 @@ int main(){
 				recDarkFrame = !recDarkFrame;
 				break;
 			}
-			case 'v': {
-
-				if (!stackFrames.empty()){
-					cv::Mat image = stackFrames.back();
-					stackFrames.pop_back();
-					recordedFrames--;
-
-					if(image.empty()){
-						break;
-					}
-					cv::imshow("Pop",image);
-					std::cout << recordedFrames << std::endl;
-				}
-				else{
-					stackFrames.shrink_to_fit();
-					cv::destroyWindow("Stack");
-					std::cout << "No more images" << std::endl;
-				}
-				
-				break;
-
-
-			}
 			case 'x' : {
-				
+				int numStackedFrames = recordedFrames; //Save number locally 
+
 				cv::Mat completedStack;
 				stack(stackFrames,completedStack);
 				stackFrames.clear();
 				recordedFrames = 0;
-				std::cout << recordedFrames << std::endl;
-				
 
 				if (completedStack.empty()){
 					std::cout << "Nothing to stack" << std::endl;
 					break;
 				}
-	
-
-				cv::Mat stackDisplay;
-				completedStack.convertTo(stackDisplay,CV_8UC1);
-				cv::imshow("Stack",stackDisplay);
-
 
 				//Set the new dark frame
 				cv::Mat newDarkDSigned;
 				completedStack.convertTo(newDarkDSigned,CV_16SC1);
 				subtractMean(newDarkDSigned,OffsetDarkSigned);
 
+				std::cout << "Stacked " << numStackedFrames << " frames as new master dark." << std::endl;
+
+
 				break;
+			}
+			case 'z' : {
+
+				cv::Mat stackDisplay;
+				signedGrayscale16ToRedBlue8(OffsetDarkSigned,stackDisplay);
+				cv::imshow("Signed Dark Frame Offset (Scaled x10) Green(+) Red(-)",10*stackDisplay);
+
 			}
 			default:
 				break;
@@ -322,8 +279,8 @@ void signedGrayscale16ToRedBlue8(const cv::Mat & signedGrayscale, cv::Mat & rgbO
 	//cv::imshow("Negative",NegativeDisplay);
 
 
-	cv::Mat green(size,CV_8UC1);
-	cv::Mat channels[3] = {NegativeDisplay,green,PositiveDisplay};
+	cv::Mat blank(size,CV_8UC1);
+	cv::Mat channels[3] = {blank,PositiveDisplay,NegativeDisplay};
 
 	cv::merge(channels,3,rgbOut);
 }
